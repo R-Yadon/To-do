@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FOCUS — タスク管理</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- ========== SIDEBAR ========== -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">FOCUS</div>
+        <div class="logo-sub">Personal Task Manager</div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-label">ビュー</div>
+
+        <button class="nav-item active" data-section="today">
+          <span class="nav-icon nav-icon--today">◆</span>
+          <span class="nav-text">Today</span>
+          <span class="task-badge" id="badge-today" style="display:none">0</span>
+        </button>
+
+        <button class="nav-item" data-section="tomorrow">
+          <span class="nav-icon nav-icon--tomorrow">◇</span>
+          <span class="nav-text">Tomorrow</span>
+          <span class="task-badge" id="badge-tomorrow" style="display:none">0</span>
+        </button>
+
+        <button class="nav-item" data-section="nextWeek">
+          <span class="nav-icon nav-icon--nextweek">▷</span>
+          <span class="nav-text">Next Week</span>
+          <span class="task-badge" id="badge-nextWeek" style="display:none">0</span>
+        </button>
+
+        <button class="nav-item" data-section="nextMonth">
+          <span class="nav-icon nav-icon--nextmonth">▶</span>
+          <span class="nav-text">Next Month</span>
+          <span class="task-badge" id="badge-nextMonth" style="display:none">0</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-categories">
+        <div class="nav-label">カテゴリ</div>
+        <button class="cat-item active" data-category="all">
+          <span class="cat-dot cat-dot--all"></span>
+          すべて
+        </button>
+        <button class="cat-item" data-category="就活">
+          <span class="cat-dot cat-dot--job"></span>
+          就活
+        </button>
+        <button class="cat-item" data-category="インターン">
+          <span class="cat-dot cat-dot--intern"></span>
+          インターン
+        </button>
+        <button class="cat-item" data-category="大学">
+          <span class="cat-dot cat-dot--univ"></span>
+          大学
+        </button>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="month-selector">
+          <button class="month-btn" id="prev-month" title="前の月">‹</button>
+          <span class="month-label" id="month-display"><!-- JS で上書き --></span>
+          <button class="month-btn" id="next-month" title="次の月">›</button>
+        </div>
+        <div class="data-note">データは月ごとに保存されます</div>
+      </div>
+    </aside>
+
+    <!-- ========== MAIN ========== -->
+    <main class="main">
+
+      <!-- Header -->
+      <header class="main-header">
+        <div class="header-left">
+          <h1 class="section-title" id="section-title">Today</h1>
+          <p class="section-subtitle" id="section-subtitle">今日のタスク</p>
+        </div>
+        <div class="header-right">
+          <div class="stats-group">
+            <div class="stat-card">
+              <span class="stat-num" id="stat-total">0</span>
+              <span class="stat-lbl">タスク</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-card">
+              <span class="stat-num stat-num--done" id="stat-done">0</span>
+              <span class="stat-lbl">完了</span>
+            </div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-track">
+              <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <span class="progress-pct" id="progress-pct">0%</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <div class="main-content">
+
+        <!-- Input area -->
+        <div class="input-area">
+          <div class="input-row">
+            <input
+              type="text"
+              id="task-input"
+              class="task-input"
+              placeholder="新しいタスクを入力... （Enterで追加）"
+              autocomplete="off"
+            />
+          </div>
+          <div class="input-meta-row">
+            <select id="task-category" class="meta-select">
+              <option value="就活">就活</option>
+              <option value="インターン">インターン</option>
+              <option value="大学">大学</option>
+            </select>
+            <select id="task-priority" class="meta-select">
+              <option value="high">🔴 優先度：高</option>
+              <option value="medium" selected>🟡 優先度：中</option>
+              <option value="low">⚪ 優先度：低</option>
+            </select>
+            <button class="add-btn" id="add-btn">＋ タスクを追加</button>
+          </div>
+        </div>
+
+        <!-- Drag hint -->
+        <div class="drag-hint" id="drag-hint" style="display:none">
+          <span class="drag-hint-icon">⠿</span> ドラッグして並び替え可能です
+        </div>
+
+        <!-- Task List -->
+        <div class="task-list" id="task-list"></div>
+
+        <!-- Empty state -->
+        <div class="empty-state" id="empty-state" style="display:none">
+          <div class="empty-graphic">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+              <rect x="12" y="8" width="40" height="48" rx="4" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/>
+              <line x1="20" y1="22" x2="44" y2="22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="20" y1="30" x2="38" y2="30" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="20" y1="38" x2="32" y2="38" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <p class="empty-title">タスクがありません</p>
+          <p class="empty-sub">上のフォームから新しいタスクを追加してください</p>
+
+          <!-- Carryover prompt — shown only when prev-month has incomplete tasks -->
+          <div class="carryover-prompt" id="carryover-prompt" style="display:none">
+            <div class="carryover-rule"></div>
+            <p class="carryover-label" id="carryover-label">
+              前月に未完了のタスクがあります
+            </p>
+            <button class="carryover-btn" id="carryover-btn">
+              <span class="carryover-btn-icon">↑</span>
+              前月からタスクを引き継ぐ
+            </button>
+            <p class="carryover-detail" id="carryover-detail"></p>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
